@@ -9,6 +9,8 @@ class Knight < Piece
     knight_moves(board, row, col)
   end
 
+  private
+
   def knight_moves(board, row, col)
     moves = []
     # Knight moves in chess: 2 in one direction, 1 in the other

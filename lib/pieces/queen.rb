@@ -10,6 +10,8 @@ class Queen < Piece
     queen_moves(board, row, col)
   end
 
+  private
+
   def queen_moves(board, row, col)
     horizontal_moves(board, row, col) + vertical_moves(board, row, col) +
       left_diagonal(board, row, col) + right_diagonal(board, row, col)

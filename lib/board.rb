@@ -1,8 +1,39 @@
+# to do:
+# merge the two to implment print board/generate_board
+# move piece and capture piece
+# save board state(yaml)
+# reset board
+# load board state(yaml)
+# checkmate check and stalemate check
+# check check
+require_relative "pieces/require_pieces"
 class Board
   attr_reader :board
 
   def initialize
     @board = Array.new(8) { Array.new(8) }
+    # setup_pieces
+  end
+
+  def setup_pieces
+    pieces = %i[rook knight bishop queen king bishop knight rook]
+    board.each_index do |col|
+      @board[0][col] = create_piece(:black, pieces[col])
+      @board[1][col] = create_piece(:black, :pawn)
+      @board[7][col] = create_piece(:white, pieces[col])
+      @board[6][col] = create_piece(:white, :pawn)
+    end
+  end
+
+  def create_piece(color, name)
+    case name
+    when :pawn then Pawn.new(color)
+    when :rook then Rook.new(color)
+    when :knight then Knight.new(color)
+    when :bishop then Bishop.new(color)
+    when :queen then Queen.new(color)
+    when :king then  King.new(color)
+    end
   end
 
   def in_range?(row, col)

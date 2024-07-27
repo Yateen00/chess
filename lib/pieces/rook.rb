@@ -4,14 +4,17 @@ class Rook < Piece
     symbol = color == :white ? :♖ : :♜
     super(color, symbol)
   end
+
   def valid_moves(board, row, col)
     horizontal_moves(board, row, col) + vertical_moves(board, row, col)
   end
 
+  private
+
   def horizontal_moves(board, row, col)
     move_offset = [-1, 1]
     moves = []
-    index=0
+    index = 0
     while index < move_offset.length
 
       if board.enemy_tile?(color, row, col + move_offset[index])

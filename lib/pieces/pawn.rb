@@ -5,12 +5,18 @@ class Pawn < Piece
     super(color, symbol)
   end
 
-  def first_move?(row)
-    row == (color == :white ? 6 : 1)
-  end
-
   def valid_moves(board, row, col)
     forward_moves(board, row, col) + diagonal_moves(board, row, col)
+  end
+
+  def en_passant?(board, my_row, my_col, enemy_row, enemy_col)
+    true if my_row == enemy_row && (my_col - enemy_col).abs == 1 && board.enemy_tile?(color, enemy_row, enemy_col)
+  end
+
+  private
+
+  def first_move?(row)
+    row == (color == :white ? 6 : 1)
   end
 
   def forward_moves(board, row, col)
@@ -37,9 +43,5 @@ class Pawn < Piece
                                                  en_passant?(board, row, col, row, offsetted_col)
     end
     moves
-  end
-
-  def en_passant?(board, my_row, my_col, enemy_row, enemy_col)
-    true if my_row == enemy_row && (my_col - enemy_col).abs == 1 && board.enemy_tile?(color, enemy_row, enemy_col)
   end
 end

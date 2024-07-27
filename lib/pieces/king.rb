@@ -8,7 +8,7 @@ class King < Piece
   def valid_moves(board, row, col)
     king_moves(board, row, col)
   end
-
+private
   def king_moves(board, row, col)
     moves = []
     move_offset = [-1, 0, 1]

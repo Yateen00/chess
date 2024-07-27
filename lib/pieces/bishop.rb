@@ -8,7 +8,7 @@ class Bishop < Piece
   def valid_moves(board, row, col)
     left_diagonal(board, row, col) + right_diagonal(board, row, col)
   end
-
+private
   def left_diagonal(board, row, col)
     moves = []
     move_offset = [-1, 1]

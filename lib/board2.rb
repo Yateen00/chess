@@ -15,21 +15,6 @@ class Board
 
   private
 
-  def setup_pieces
-    # Setup pawns
-    (0...8).each do |col|
-      @board[1][col] = "\u265F" # Black pawn
-      @board[6][col] = "\u2659" # White pawn
-    end
-
-    # Setup other pieces
-    pieces = ["\u265C", "\u265E", "\u265D", "\u265B", "\u265A", "\u265D", "\u265E", "\u265C"]
-    (0...8).each do |col|
-      @board[0][col] = pieces[col] # Black pieces
-      @board[7][col] = pieces[col].tr("\u265A-\u265F", "\u2654-\u2659") # White pieces
-    end
-  end
-
   def print_square(row, col)
     piece = @board[row][col] || " "
     piece_color = if piece.match?(/[\u2654-\u2659]/)
