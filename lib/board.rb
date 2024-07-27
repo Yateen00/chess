@@ -72,7 +72,20 @@ class Board
     true if empty_tile?(row, col) || enemy_tile?(color, row, col)
   end
 
+  def to_yaml
+    YAML.dump(self)
+  end
+
+  def self.from_yaml(string)
+    YAML.load(string)
+  end
+
   private
+
+  def load_state(string)
+    board = Board.from_yaml(string)
+    @board = board.board
+  end
 
   def print_square(row, col)
     piece = @board[row][col] || " "
