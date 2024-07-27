@@ -1,25 +1,18 @@
 require_relative "piece"
+# no spec file as its a mix of bishop and rook
 class Queen < Piece
-  def valid_moves(board, row, col)
-    king_moves(board, row, col) + horizontal_moves(board, row, col) +
-      vertical_moves(board, row, col) + left_diagonal(board, row, col) +
-      right_diagonal(board, row, col)
+  def initialize(color)
+    symbol = color == :white ? :♕ : :♛
+    super(color, symbol)
   end
 
-  def king_moves(board, row, col)
-    moves = []
-    move_offset = [-1, 0, 1]
-    # basically generates all combination of above moves
-    move_offset.each do |row_offset|
-      move_offset.each do |col_offset|
-        offseteted_row = row + row_offset
-        offseteted_col = col + col_offset
-        next if (row_offset.zero? && col_offset.zero?) || !board.allowed_tile?(color, offseteted_row, offseteted_col)
+  def valid_moves(board, row, col)
+    queen_moves(board, row, col)
+  end
 
-        moves << [offseteted_row, offseteted_col]
-      end
-    end
-    moves
+  def queen_moves(board, row, col)
+    horizontal_moves(board, row, col) + vertical_moves(board, row, col) +
+      left_diagonal(board, row, col) + right_diagonal(board, row, col)
   end
 
   def horizontal_moves(board, row, col)

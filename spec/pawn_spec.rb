@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../lib/pieces/pawn"
-require_relative "../lib/board2"
+require_relative "../lib/board"
 describe Pawn do
   let(:piece) { Pawn.new(:white) }
   let(:board) { Board.new }
@@ -50,7 +50,7 @@ describe Pawn do
       board.set_piece(6, 2, piece)
       expect(piece.diagonal_moves(board, 6, 2)).to eq([[5, 1]])
       board.set_piece(5, 3, Pawn.new(:black))
-      expect(piece.diagonal_moves(board, 6, 2)).to include([5, 3], [5, 1])
+      expect(piece.diagonal_moves(board, 6, 2)).to contain_exactly([5, 3], [5, 1])
     end
     it "returns no diagonal moves if friendly piece in diagonal" do
       board.set_piece(5, 1, Pawn.new(:white))
@@ -58,9 +58,9 @@ describe Pawn do
     end
     it "returns diagonal moves if en passant" do
       board.set_piece(6, 3, Pawn.new(:black))
-      expect(piece.diagonal_moves(board, 6, 2)).to include([5, 3])
+      expect(piece.diagonal_moves(board, 6, 2)).to contain_exactly([5, 3])
       board.set_piece(6, 1, Pawn.new(:black))
-      expect(piece.diagonal_moves(board, 6, 2)).to include([5, 3], [5, 1])
+      expect(piece.diagonal_moves(board, 6, 2)).to contain_exactly([5, 3], [5, 1])
     end
   end
 end

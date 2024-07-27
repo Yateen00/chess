@@ -18,10 +18,10 @@ class Pawn < Piece
     move_offset = color == :white ? [-1, -2] : [1, 2]
     times = first_move?(row) ? 2 : 1
     times.times do |i|
-      offseteted_row = row + move_offset[i]
-      break unless board.empty_tile?(offseteted_row, col)
+      offsetted_row = row + move_offset[i]
+      break unless board.empty_tile?(offsetted_row, col)
 
-      moves << [offseteted_row, col]
+      moves << [offsetted_row, col]
     end
     moves
   end
@@ -40,7 +40,6 @@ class Pawn < Piece
   end
 
   def en_passant?(board, my_row, my_col, enemy_row, enemy_col)
-
     true if my_row == enemy_row && (my_col - enemy_col).abs == 1 && board.enemy_tile?(color, enemy_row, enemy_col)
   end
 end

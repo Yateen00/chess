@@ -1,5 +1,10 @@
 require_relative "piece"
 class King < Piece
+  def initialize(color)
+    symbol = color == :white ? :♔ : :♚
+    super(color, symbol)
+  end
+
   def valid_moves(board, row, col)
     king_moves(board, row, col)
   end
@@ -10,11 +15,10 @@ class King < Piece
     # basically generates all combination of above moves
     move_offset.each do |row_offset|
       move_offset.each do |col_offset|
-        offseteted_row = row + row_offset
-        offseteted_col = col + col_offset
-        next if (row_offset.zero? && col_offset.zero?) || !board.allowed_tile?(color, offseteted_row, offseteted_col)
-
-        moves << [offseteted_row, offseteted_col]
+        offsetted_row = row + row_offset
+        offsetted_col = col + col_offset
+        moves << [offsetted_row, offsetted_col] unless (row_offset.zero? && col_offset.zero?) ||
+                                                       !board.allowed_tile?(color, offsetted_row, offsetted_col)
       end
     end
     moves

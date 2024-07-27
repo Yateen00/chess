@@ -1,5 +1,10 @@
 require_relative "piece"
 class Bishop < Piece
+  def initialize(color)
+    symbol = color == :white ? :♗ : :♝
+    super(color, symbol)
+  end
+
   def valid_moves(board, row, col)
     left_diagonal(board, row, col) + right_diagonal(board, row, col)
   end

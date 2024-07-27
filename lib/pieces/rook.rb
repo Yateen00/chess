@@ -1,5 +1,9 @@
 require_relative "piece"
 class Rook < Piece
+  def initialize(color)
+    symbol = color == :white ? :♖ : :♜
+    super(color, symbol)
+  end
   def valid_moves(board, row, col)
     horizontal_moves(board, row, col) + vertical_moves(board, row, col)
   end
