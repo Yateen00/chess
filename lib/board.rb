@@ -12,7 +12,7 @@ class Board
 
   def initialize
     @board = Array.new(8) { Array.new(8) }
-    # setup_pieces
+    setup_pieces
   end
 
   def setup_pieces
@@ -34,6 +34,10 @@ class Board
     when :queen then Queen.new(color)
     when :king then  King.new(color)
     end
+  end
+
+  def empty_board
+    @board = Array.new(8) { Array.new(8) }
   end
 
   def in_range?(row, col)

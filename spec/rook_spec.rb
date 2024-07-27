@@ -2,7 +2,11 @@ require_relative "../lib/pieces/rook"
 require_relative "../lib/board"
 describe Rook do
   let(:piece) { Rook.new(:white) }
-  let(:board) { Board.new }
+  let(:board) do
+    board = Board.new
+    board.clear_board
+    board
+  end
   describe "initialize" do
     it "color is white" do
       expect(piece.color).to eq(:white)
