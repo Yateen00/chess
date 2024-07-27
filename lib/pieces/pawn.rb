@@ -1,16 +1,21 @@
 require_relative "piece"
 class Pawn < Piece
+  def initialize(color)
+    symbol = color == :white ? :♙ : :♟
+    super(color, symbol)
+  end
+
   def first_move?(row)
-    row == (color == :white ? 6 : 1)
+    row == (color == :black ? 6 : 1)
   end
 
   def valid_moves(board, row, col)
-    forward_moves(board, row, col) + diagonal_moves(board, row, col) + en_passant_moves(board, row, col)
+    forward_moves(board, row, col) + diagonal_moves(board, row, col)
   end
 
   def forward_moves(board, row, col)
     moves = []
-    move_offset = color == :white ? [-1, -2] : [1, 2]
+    move_offset = color == :black ? [-1, -2] : [1, 2]
     times = first_move?(row) ? 2 : 1
     times.times do |i|
       offseteted_row = row + move_offset[i]
@@ -21,9 +26,9 @@ class Pawn < Piece
     moves
   end
 
-  def capture_moves(board, row, col)
+  def diagonal_moves(board, row, col)
     moves = []
-    move_offsets = color == :white ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]]
+    move_offsets = color == :black ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]]
     move_offsets.each do |row_offset, col_offset|
       offsetted_row = row + row_offset
       offsetted_col = col + col_offset

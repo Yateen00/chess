@@ -2,9 +2,9 @@ class Piece
   attr_reader :color, :symbol
 
   # color: symbol
-  def initialize(color, symbol)
+  def initialize(color, symbol = nil)
     @color = color
-    @symbol = nil
+    @symbol = symbol
   end
 
   def to_s

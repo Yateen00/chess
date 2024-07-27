@@ -59,6 +59,15 @@ class Board
   def print_bottom_border
     print "└───" + ("┴───" * 7) + "┘\n"
   end
+
+  row.between?(0, 7) && column.between?(0, 7)
+  allowed_tile?(color, row + move_offset[0], col)
+  # allowed tile checks for tile in range, empty or enemy tile
+  enemy_tile?(color, row + move_offset[0], col)
+  empty_tile?(row + move_offset[0], col)
+  in_range?(row + move_offset[0], col)
+
+  # enemy tile checks for tile in range and enemy tile
 end
 
 board = Board.new

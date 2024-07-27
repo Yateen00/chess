@@ -16,16 +16,10 @@ class Board
   end
 
   def enemy_tile?(color, row, col)
-    return false if empty_tile?(row, col) || !in_range?(row, col)
-
-    @board[row][col].color != color
+    @board[row][col].color != color if !empty_tile?(row, col) && in_range?(row, col)
   end
 
   def allowed_tile?(color, row, col)
     true if empty_tile?(row, col) || enemy_tile?(color, row, col)
   end
 end
-
-# allowed tile checks for tile in range, empty or enemy tile
-
-# enemy tile checks for tile in range and enemy tile
