@@ -8,7 +8,7 @@ class Piece
   end
 
   def to_s
-    @symbol
+    @symbol.to_s
   end
 
   def valid_moves(board, row, col)

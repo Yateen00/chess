@@ -1,5 +1,5 @@
 # to do:
-# merge the two to implment print board/generate_board
+# merge the two to implment print board/generate_board ✓
 # move piece and capture piece
 # save board state(yaml)
 # reset board
@@ -36,6 +36,15 @@ class Board
     end
   end
 
+  def print_board
+    print_top_border
+    board.each_index do |row|
+      print_row(row)
+      print_middle_border unless row == 7
+    end
+    print_bottom_border
+  end
+
   def empty_board
     @board = Array.new(8) { Array.new(8) }
   end
@@ -62,4 +71,32 @@ class Board
   def allowed_tile?(color, row, col)
     true if empty_tile?(row, col) || enemy_tile?(color, row, col)
   end
+
+  private
+
+  def print_square(row, col)
+    piece = @board[row][col] || " "
+    print "│ #{piece} "
+  end
+
+  def print_row(row)
+    board.each_index do |col|
+      print_square(row, col)
+    end
+    print "│\n"
+  end
+
+  def print_top_border
+    print "┌───" + ("┬───" * 7) + "┐\n"
+  end
+
+  def print_middle_border
+    print "├───" + ("┼───" * 7) + "┤\n"
+  end
+
+  def print_bottom_border
+    print "└───" + ("┴───" * 7) + "┘\n"
+  end
 end
+board = Board.new
+board.print_board
