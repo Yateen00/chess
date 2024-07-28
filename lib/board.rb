@@ -88,6 +88,20 @@ class Board
     true
   end
 
+  def king_in_check?(color)
+    king_row, king_col = find_king(color)
+    board.each_index do |row|
+      board[row].each_index do |col|
+        piece = get_piece(row, col)
+        next if piece.nil? || piece.color == color
+
+        return true if piece.valid_moves(self, row, col).include?([king_row, king_col])
+      end
+    end
+    false
+  end
+
+  # choose another piece, no valid moves. show all posisble moves when checked
   def set_piece(row, col, piece)
     @board[row][col] = piece
   end
@@ -97,6 +111,7 @@ class Board
     when "Pawn"
       handle_en_passant(row, col, finish_row, finish_col, piece)
       piece = handle_promotion(finish_row, finish_col, piece) || piece
+    when "King"
     end
     set_piece(finish_row, finish_col, piece)
     set_piece(row, col, nil)
@@ -184,24 +199,24 @@ class Board
   end
 end
 
-def test_en_passant
-  board = Board.new
-  board.clear_board
-  board.set_piece(6, 0, Pawn.new(:white))
-  board.set_piece(4, 1, Pawn.new(:black))
-  board.print_board
-  board.move_piece("a2", "a4")
-  board.print_board
-  board.move_piece("b4", "a3")
-  board.print_board
-end
+# def test_en_passant
+#   board = Board.new
+#   board.clear_board
+#   board.set_piece(6, 0, Pawn.new(:white))
+#   board.set_piece(4, 1, Pawn.new(:black))
+#   board.print_board
+#   board.move_piece("a2", "a4")
+#   board.print_board
+#   board.move_piece("b4", "a3")
+#   board.print_board
+# end
 
-def test_promotion
-  board = Board.new
-  board.clear_board
-  board.set_piece(1, 0, Pawn.new(:white))
-  board.print_board
-  board.move_piece("a7", "a8")
-  board.print_board
-end
-test_promotion
+# def test_promotion
+#   board = Board.new
+#   board.clear_board
+#   board.set_piece(1, 0, Pawn.new(:white))
+#   board.print_board
+#   board.move_piece("a7", "a8")
+#   board.print_board
+# end
+# test_promotion
