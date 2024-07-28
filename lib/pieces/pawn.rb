@@ -1,16 +1,21 @@
 require_relative "piece"
 class Pawn < Piece
+  attr_accessor :took_double_step
+
   def initialize(color)
     symbol = color == :white ? :♙ : :♟
     super(color, symbol)
+    @took_double_step = false
   end
 
   def valid_moves(board, row, col)
     forward_moves(board, row, col) + diagonal_moves(board, row, col)
   end
 
-  def en_passant?(board, my_row, my_col, enemy_row, enemy_col)
-    true if my_row == enemy_row && (my_col - enemy_col).abs == 1 && board.enemy_tile?(color, enemy_row, enemy_col)
+  def en_passant?(board, row, col, enemy_row, enemy_col)
+    board.get_piece(row, enemy_col)&.took_double_step &&
+      board.enemy_tile?(color, row, enemy_col) &&
+      enemy_row == row
   end
 
   private

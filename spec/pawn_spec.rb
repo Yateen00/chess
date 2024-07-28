@@ -41,10 +41,13 @@ describe Pawn do
       expect(piece.valid_moves(board, 6, 1)).to include([5, 2], [5, 0])
     end
     it "returns en passant move" do
-      board.set_piece(3, 0, Pawn.new(:black))
-      expect(piece.valid_moves(board, 3, 1)).to include([2, 0])
-      board.set_piece(3, 2, Pawn.new(:black))
-      expect(piece.valid_moves(board, 3, 1)).to include([2, 2], [2, 0])
+      var = Pawn.new(:black)
+      var.took_double_step = true
+      board.set_piece(3, 0, var)
+      board.set_piece(2, 1, var)
+      expect(piece.valid_moves(board, 3, 1)).to contain_exactly([2, 0])
+      board.set_piece(3, 2, var)
+      expect(piece.valid_moves(board, 3, 1)).to contain_exactly([2, 2], [2, 0])
     end
   end
 end
