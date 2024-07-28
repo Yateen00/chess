@@ -26,8 +26,9 @@ class King < Piece
                                                        !board.allowed_tile?(color, offsetted_row, offsetted_col)
       end
     end
-
-    moves = add_castling_moves(moves, board, row, col) unless board.check?(color, row, col)
+    # not added check check here as leads to infinite loop:
+    # black calls white check, white calls black check check,etc
+    moves = add_castling_moves(moves, board, row, col)
     moves = remove_blocked_moves(moves, board, row, col)
     verify_castling(moves, board, row, col)
   end
