@@ -1,4 +1,4 @@
-require_relative "../lib/board"
+require_relative "..lib/board/board"
 require_relative "../lib/pieces/king"
 require_relative "../lib/pieces/rook"
 describe King do

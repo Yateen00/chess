@@ -1,6 +1,5 @@
-require_relative "../lib/board"
+require_relative "../lib/board/board"
 require_relative "../lib/pieces/require_pieces"
-
 describe Board do
   let(:board) do
     temp = Board.new

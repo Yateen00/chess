@@ -1,4 +1,4 @@
-require_relative "../lib/board"
+require_relative "..lib/board/board"
 require_relative "../lib/pieces/knight"
 describe Knight do
   let(:piece) { Knight.new(:white) }
