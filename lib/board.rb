@@ -7,6 +7,7 @@
 # load board state(yaml) ✅
 # checkmate check and stalemate check
 # check check
+# seperate fucntions in file, reorder and sort them, anything that makes it look cleaner
 require_relative "pieces/require_pieces"
 class Board
   attr_reader :board, :previous_move
@@ -14,6 +15,109 @@ class Board
   def initialize
     @board = Array.new(8) { Array.new(8) }
     setup_pieces
+  end
+
+  def move_piece(start, finish, moves = nil) # assuming valid start,end
+    start_row, start_col = move_parser(start)
+    finish_row, finish_col = move_parser(finish)
+    piece = get_piece(start_row, start_col)
+    return false if piece.nil?
+
+    moves = piece.valid_moves(self, start_row, start_col) if moves.nil?
+    return false unless moves.include?([finish_row, finish_col])
+
+    handle_move(start_row, start_col, finish_row, finish_col, piece)
+    @previous_move = [[start_row, start_col], [finish_row, finish_col]]
+    true
+  end
+
+  def checkmate_moves(color)
+    king_row, king_col = find_king(color)
+    piece_and_moves = Hash.new { |h, k| h[k] = [] } # {piece_position: [valid_moves]}
+    board.each_with_index do |arr, row|
+      arr.each_with_index do |piece, col|
+        next if piece.nil? || piece.color != color
+
+        pos = move_encoder(row, col)
+        if piece.instance_of?(King)
+          piece.valid_moves(self, row, col).each do |move|
+            piece_and_moves[pos] << move_encoder(*move)
+          end
+        else
+          piece.valid_moves(self, row, col).each do |move|
+            temp = get_piece(*move)
+            set_piece(*move, piece)
+            piece_and_moves[pos] << move_encoder(*move) unless king_in_check?(color, king_row, king_col)
+            set_piece(*move, temp)
+          end
+        end
+      end
+    end
+    piece_and_moves
+  end
+
+  def handle_move(row, col, finish_row, finish_col, piece)
+    case piece.class.to_s
+    when "Pawn"
+      handle_en_passant(row, col, finish_row, finish_col, piece)
+      piece = handle_promotion(finish_row, finish_col, piece) || piece
+    end
+    set_piece(finish_row, finish_col, piece)
+    set_piece(row, col, nil)
+    remove_en_passant
+  end
+
+  # tested
+  # #
+  #
+  #
+  #
+  #
+  def king_in_check?(color, king_row = nil, king_col = nil)
+    king_row, king_col = find_king(color) if king_row.nil? || king_col.nil?
+    board.each_index do |row|
+      board[row].each_index do |col|
+        piece = get_piece(row, col)
+        next if piece.nil? || piece.color == color
+
+        return true if piece.valid_moves(self, row, col).include?([king_row, king_col])
+      end
+    end
+    false
+  end
+
+  def set_piece(row, col, piece)
+    @board[row][col] = piece
+  end
+
+  def find_king(color)
+    board.each_index do |row|
+      board[row].each_index do |col|
+        piece = get_piece(row, col)
+        return [row, col] if piece.instance_of?(King) && piece.color == color
+      end
+    end
+  end
+
+  def print_possible_moves(position, moves = nil)
+    if moves.nil?
+      row, col = move_parser(position)
+      piece = get_piece(row, col)
+      return if piece.nil?
+    end
+    moves = piece.valid_moves(self, row, col)
+    green_bg = "\e[42m"
+    reset_bg = "\e[0m"
+    temp_pieces = moves.map do |move|
+      piece = get_piece(*move)
+      set_piece(*move, green_bg + piece.to_s + reset_bg)
+      set_piece(*move, "•") if piece.nil?
+      [piece, move]
+    end
+    print_board
+    temp_pieces.each do |piece, move|
+      set_piece(*move, piece)
+    end
   end
 
   def setup_pieces
@@ -51,13 +155,23 @@ class Board
     [row, col]
   end
 
+  def move_encoder(row, col)
+    col = (col + 97).chr
+    row = 8 - row
+    "#{col}#{row}"
+  end
+
   def print_board
+    print "    0   1   2   3   4   5   6   7\n"
     print_top_border
     board.each_index do |row|
+      print "#{8 - row} " # Row label
       print_row(row)
+
       print_middle_border unless row == 7
     end
     print_bottom_border
+    print "    a   b   c   d   e   f   g   h\n"
   end
 
   def clear_board
@@ -71,50 +185,6 @@ class Board
   # can be used to move
   def empty_tile?(row, col)
     @board[row][col].nil? if in_range?(row, col)
-  end
-
-  def move_piece(start, finish) # assuming valid finish,end
-    start_row, start_col = move_parser(start)
-    finish_row, finish_col = move_parser(finish)
-    piece = get_piece(start_row, start_col)
-    return false if piece.nil?
-
-    moves = piece.valid_moves(self, start_row, start_col)
-    return false unless moves.include?([finish_row, finish_col])
-
-    handle_move(start_row, start_col, finish_row, finish_col, piece)
-    remove_en_passant
-    @previous_move = [[start_row, start_col], [finish_row, finish_col]]
-    true
-  end
-
-  def king_in_check?(color)
-    king_row, king_col = find_king(color)
-    board.each_index do |row|
-      board[row].each_index do |col|
-        piece = get_piece(row, col)
-        next if piece.nil? || piece.color == color
-
-        return true if piece.valid_moves(self, row, col).include?([king_row, king_col])
-      end
-    end
-    false
-  end
-
-  # choose another piece, no valid moves. show all posisble moves when checked
-  def set_piece(row, col, piece)
-    @board[row][col] = piece
-  end
-
-  def handle_move(row, col, finish_row, finish_col, piece)
-    case piece.class.to_s
-    when "Pawn"
-      handle_en_passant(row, col, finish_row, finish_col, piece)
-      piece = handle_promotion(finish_row, finish_col, piece) || piece
-    when "King"
-    end
-    set_piece(finish_row, finish_col, piece)
-    set_piece(row, col, nil)
   end
 
   def remove_en_passant
@@ -187,36 +257,69 @@ class Board
   end
 
   def print_top_border
-    print "┌───" + ("┬───" * 7) + "┐\n"
+    puts "  ┌───#{'┬───' * 7}┐"
   end
 
   def print_middle_border
-    print "├───" + ("┼───" * 7) + "┤\n"
+    puts "  ├───#{'┼───' * 7}┤"
   end
 
   def print_bottom_border
-    print "└───" + ("┴───" * 7) + "┘\n"
+    puts "  └───#{'┴───' * 7}┘"
   end
 end
 
-# def test_en_passant
-#   board = Board.new
-#   board.clear_board
-#   board.set_piece(6, 0, Pawn.new(:white))
-#   board.set_piece(4, 1, Pawn.new(:black))
-#   board.print_board
-#   board.move_piece("a2", "a4")
-#   board.print_board
-#   board.move_piece("b4", "a3")
-#   board.print_board
-# end
+def test_en_passant
+  board = Board.new
+  board.clear_board
+  board.set_piece(6, 0, Pawn.new(:white))
+  board.set_piece(4, 1, Pawn.new(:black))
+  board.print_board
+  board.move_piece("a2", "a4")
+  board.print_board
+  board.move_piece("b4", "a3")
+  board.print_board
+end
 
-# def test_promotion
-#   board = Board.new
-#   board.clear_board
-#   board.set_piece(1, 0, Pawn.new(:white))
-#   board.print_board
-#   board.move_piece("a7", "a8")
-#   board.print_board
-# end
-# test_promotion
+def test_promotion
+  board = Board.new
+  board.clear_board
+  board.set_piece(1, 0, Pawn.new(:white))
+  board.print_board
+  board.move_piece("a7", "a8")
+  board.print_board
+end
+
+def test_possible_moves
+  board = Board.new
+  board.clear_board
+  board.set_piece(4, 4, Queen.new(:white))
+  board.set_piece(3, 3, Rook.new(:black))
+  board.print_possible_moves("e4")
+end
+
+# test_possible_moves
+def king_in_check_test
+  board = Board.new
+  board.clear_board
+  board.set_piece(4, 4, King.new(:white))
+  board.set_piece(3, 3, Rook.new(:black))
+  board.print_board
+  p board.king_in_check?(:white)
+  board.move_piece("d5", "e5")
+  board.print_board
+  p board.king_in_check?(:white)
+end
+
+# king_in_check_test
+def checkmate_test
+  board = Board.new
+  board.clear_board
+  board.set_piece(4, 4, King.new(:white))
+  board.set_piece(3, 3, Rook.new(:black))
+  board.set_piece(3, 5, Rook.new(:black))
+  board.set_piece(4, 3, Rook.new(:black))
+  board.print_board
+  p board.checkmate_moves(:white)
+end
+checkmate_test

@@ -23,27 +23,27 @@ class King < Piece
                                                        !board.allowed_tile?(color, offsetted_row, offsetted_col)
       end
     end
-    remove_blocked_moves(moves, board)
+    remove_blocked_moves(moves, board, row, col)
   end
 
   # internal needs to be at start
-  def remove_blocked_moves(moves, board)
+  def remove_blocked_moves(moves, board, my_row, my_col)
+    board.set_piece(my_row, my_col, nil)
     moves = remove_internal_blocked_moves(moves, board)
-    temp_pieces = moves.each_with_object([]) do |move, obj|
-      piece = board.get_piece(move[0], move[1])
-      next if piece.nil?
 
-      board.set_piece(move[0], move[1], self)
-      obj << [piece, move]
-    end
     moves = remove_externally_blocked_moves(moves, board)
-    temp_pieces.each do |piece, move|
-      board.set_piece(move[0], move[1], piece)
-    end
+    board.set_piece(my_row, my_col, self)
     moves
   end
 
   def remove_externally_blocked_moves(moves, board)
+    temp_pieces = moves.each_with_object([]) do |move, obj|
+      piece = board.get_piece(*move)
+      next if piece.nil?
+
+      board.set_piece(*move, self)
+      obj << [piece, move]
+    end
     board.board.each_with_index do |subarr, row|
       subarr.each_with_index do |piece, col|
         next if piece.nil? || piece.color == color || moves.empty?
@@ -51,17 +51,27 @@ class King < Piece
         moves -= piece.valid_moves(board, row, col)
       end
     end
+    temp_pieces.each do |piece, move|
+      board.set_piece(*move, piece)
+    end
     moves
   end
 
   def remove_internal_blocked_moves(moves, board)
     filtered_moves = moves.dup
     moves.each do |move|
-      piece = board.get_piece(move[0], move[1])
+      piece = board.get_piece(*move)
       next if piece.nil?
 
-      filtered_moves -= piece.valid_moves(board, move[0], move[1])
+      filtered_moves -= piece.valid_moves(board, *move)
+      board.set_piece(*move, nil)
+      moves.each do |move2|
+        piece2 = board.get_piece(*move2)
+        filtered_moves -= piece2.valid_moves(board, *move2) unless piece2.nil? || piece2 == piece
+      end
+      board.set_piece(*move, piece)
     end
+
     filtered_moves
   end
   # to add: check conditions and castling

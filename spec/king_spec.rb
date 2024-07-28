@@ -21,16 +21,28 @@ describe King do
       expect(piece.valid_moves(board, 3,
                                3)).to contain_exactly([2, 2], [2, 3], [2, 4], [3, 2], [3, 4], [4, 2], [4, 3], [4, 4])
     end
-    it "returns moves with enemy pieces" do
-      board.set_piece(2, 2, Rook.new(:black))
+    context "when king cant capture the piece and protecting piece is in king's circle" do
+      it "returns moves that wont lead to checkmate" do
+        board.set_piece(2, 2, Rook.new(:black))
 
-      board.set_piece(3, 3, piece)
-      board.set_piece(4, 3, Rook.new(:white))
-      board.set_piece(4, 4, Rook.new(:white))
-      board.set_piece(3, 4, Rook.new(:white))
-      expect(piece.valid_moves(board, 3, 3)).to contain_exactly([2, 2])
-      board.set_piece(1, 2, Rook.new(:black))
-      expect(piece.valid_moves(board, 3, 3)).to_not include([2, 2], [2, 3], [2, 4], [3, 2], [4, 2])
+        board.set_piece(3, 3, piece)
+
+        board.set_piece(2, 4, Rook.new(:black))
+
+        expect(piece.valid_moves(board, 3, 3)).to contain_exactly([4, 3])
+      end
+    end
+
+    context "when king cant capture the piece and protecting piece is not in king's circle" do
+      it "returns moves that wont lead to checkmate" do
+        board.set_piece(2, 2, Rook.new(:black))
+
+        board.set_piece(3, 3, piece)
+        board.set_piece(1, 2, Rook.new(:black))
+
+        expect(piece.valid_moves(board, 3, 3)).to contain_exactly([4, 3], [3, 4], [4, 4])
+        expect(piece.valid_moves(board, 3, 3)).to_not include([2, 2])
+      end
     end
     it "returns only allowed moves" do
       board.set_piece(3, 3, piece)
