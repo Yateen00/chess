@@ -1,8 +1,11 @@
 require_relative "piece"
 class Rook < Piece
+  attr_accessor :first_move
+
   def initialize(color)
     symbol = color == :white ? :♖ : :♜
     super(color, symbol)
+    @first_move = true
   end
 
   def valid_moves(board, row, col)

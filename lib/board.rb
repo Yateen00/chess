@@ -1,12 +1,14 @@
 # to do:
 # merge the two to implment print board/generate_board ✅
-# move piece and capture piece
-# display possible moves for a piece
+# move piece and capture piece ✅
+# display possible moves for a piece ✅
 # save board state(yaml) ✅
 # reset board ✅
 # load board state(yaml) ✅
-# checkmate check and stalemate check
-# check check
+# castling ✅
+# check check and stalemate check ✅
+# mate check ✅
+# repition check will be done in game
 # seperate fucntions in file, reorder and sort them, anything that makes it look cleaner
 require_relative "pieces/require_pieces"
 class Board
@@ -17,13 +19,17 @@ class Board
     setup_pieces
   end
 
-  def move_piece(start, finish, moves = nil) # assuming valid start,end
-    start_row, start_col = move_parser(start)
-    finish_row, finish_col = move_parser(finish)
+  def move_piece(start, finish, moves = nil)
+    start_row, start_col = decode_move(start)
+    finish_row, finish_col = decode_move(finish)
     piece = get_piece(start_row, start_col)
     return false if piece.nil?
 
-    moves = piece.valid_moves(self, start_row, start_col) if moves.nil?
+    moves = if moves.nil?
+              piece.valid_moves(self, start_row, start_col)
+            else
+              moves.map { |move| decode_move(move) }
+            end
     return false unless moves.include?([finish_row, finish_col])
 
     handle_move(start_row, start_col, finish_row, finish_col, piece)
@@ -31,53 +37,41 @@ class Board
     true
   end
 
-  def checkmate_moves(color)
-    king_row, king_col = find_king(color)
-    piece_and_moves = Hash.new { |h, k| h[k] = [] } # {piece_position: [valid_moves]}
+  def in_range?(row, col)
+    row.between?(0, board.length - 1) && col.between?(0, board.length - 1)
+  end
+
+  # can be used to move
+  def empty_tile?(row, col)
+    @board[row][col].nil? if in_range?(row, col)
+  end
+
+  # can be used to capture
+  def enemy_tile?(color, row, col)
+    @board[row][col].color != color if in_range?(row, col) && !empty_tile?(row, col)
+  end
+
+  # can be used to capture and move
+  def allowed_tile?(color, row, col)
+    true if empty_tile?(row, col) || enemy_tile?(color, row, col)
+  end
+
+  def mate?(color, moves = nil)
+    moves || check_moves(color).empty?
+  end
+
+  def stalemate?(color)
+    return false if check?(color)
+
+    mate?(color)
+  end
+
+  def check?(color, king_row = nil, king_col = nil)
+    king_row, king_col = find_king(color) if king_row.nil? ||
+                                             king_col.nil? ||
+                                             get_piece(king_row, king_col).nil?
     board.each_with_index do |arr, row|
       arr.each_with_index do |piece, col|
-        next if piece.nil? || piece.color != color
-
-        pos = move_encoder(row, col)
-        if piece.instance_of?(King)
-          piece.valid_moves(self, row, col).each do |move|
-            piece_and_moves[pos] << move_encoder(*move)
-          end
-        else
-          piece.valid_moves(self, row, col).each do |move|
-            temp = get_piece(*move)
-            set_piece(*move, piece)
-            piece_and_moves[pos] << move_encoder(*move) unless king_in_check?(color, king_row, king_col)
-            set_piece(*move, temp)
-          end
-        end
-      end
-    end
-    piece_and_moves
-  end
-
-  def handle_move(row, col, finish_row, finish_col, piece)
-    case piece.class.to_s
-    when "Pawn"
-      handle_en_passant(row, col, finish_row, finish_col, piece)
-      piece = handle_promotion(finish_row, finish_col, piece) || piece
-    end
-    set_piece(finish_row, finish_col, piece)
-    set_piece(row, col, nil)
-    remove_en_passant
-  end
-
-  # tested
-  # #
-  #
-  #
-  #
-  #
-  def king_in_check?(color, king_row = nil, king_col = nil)
-    king_row, king_col = find_king(color) if king_row.nil? || king_col.nil?
-    board.each_index do |row|
-      board[row].each_index do |col|
-        piece = get_piece(row, col)
         next if piece.nil? || piece.color == color
 
         return true if piece.valid_moves(self, row, col).include?([king_row, king_col])
@@ -86,48 +80,37 @@ class Board
     false
   end
 
+  def check_moves(color)
+    king_row, king_col = find_king(color)
+    piece_and_moves = Hash.new { |h, k| h[k] = [] } # {piece_position: [valid_moves]}
+    board.each_with_index do |arr, row|
+      arr.each_with_index do |piece, col|
+        next if piece.nil? || piece.color != color
+
+        pos = encode_move(row, col)
+        if piece.instance_of?(King)
+          piece.valid_moves(self, row, col).each do |move|
+            piece_and_moves[pos] << encode_move(*move)
+          end
+        else
+          piece.valid_moves(self, row, col).each do |move|
+            temp = get_piece(*move)
+            set_piece(*move, piece)
+            piece_and_moves[pos] << encode_move(*move) unless check?(color, king_row, king_col)
+            set_piece(*move, temp)
+          end
+        end
+      end
+    end
+    piece_and_moves
+  end
+
   def set_piece(row, col, piece)
     @board[row][col] = piece
   end
 
-  def find_king(color)
-    board.each_index do |row|
-      board[row].each_index do |col|
-        piece = get_piece(row, col)
-        return [row, col] if piece.instance_of?(King) && piece.color == color
-      end
-    end
-  end
-
-  def print_possible_moves(position, moves = nil)
-    if moves.nil?
-      row, col = move_parser(position)
-      piece = get_piece(row, col)
-      return if piece.nil?
-    end
-    moves = piece.valid_moves(self, row, col)
-    green_bg = "\e[42m"
-    reset_bg = "\e[0m"
-    temp_pieces = moves.map do |move|
-      piece = get_piece(*move)
-      set_piece(*move, green_bg + piece.to_s + reset_bg)
-      set_piece(*move, "•") if piece.nil?
-      [piece, move]
-    end
-    print_board
-    temp_pieces.each do |piece, move|
-      set_piece(*move, piece)
-    end
-  end
-
-  def setup_pieces
-    pieces = %i[rook knight bishop queen king bishop knight rook]
-    board.each_index do |col|
-      @board[0][col] = create_piece(:black, pieces[col])
-      @board[1][col] = create_piece(:black, :pawn)
-      @board[7][col] = create_piece(:white, pieces[col])
-      @board[6][col] = create_piece(:white, :pawn)
-    end
+  def get_piece(row, col)
+    @board[row][col]
   end
 
   def reset_board
@@ -135,30 +118,8 @@ class Board
     setup_pieces
   end
 
-  def create_piece(color, name)
-    case name
-    when :pawn then Pawn.new(color)
-    when :rook then Rook.new(color)
-    when :knight then Knight.new(color)
-    when :bishop then Bishop.new(color)
-    when :queen then Queen.new(color)
-    when :king then  King.new(color)
-    end
-  end
-
-  # assuming valid move
-  def move_parser(move)
-    # move= "a2" a-h=row 1-8=col
-    col = move[0].downcase.ord - 97
-    row = move[1].to_i - 1
-    row = 7 - row
-    [row, col]
-  end
-
-  def move_encoder(row, col)
-    col = (col + 97).chr
-    row = 8 - row
-    "#{col}#{row}"
+  def clear_board
+    @board = Array.new(8) { Array.new(8) }
   end
 
   def print_board
@@ -174,17 +135,111 @@ class Board
     print "    a   b   c   d   e   f   g   h\n"
   end
 
-  def clear_board
-    @board = Array.new(8) { Array.new(8) }
+  def print_possible_moves(position, moves = nil)
+    if moves.nil?
+      row, col = decode_move(position)
+      piece = get_piece(row, col)
+      return if piece.nil?
+
+      moves = piece.valid_moves(self, row, col)
+    else
+      moves = moves.map { |move| decode_move(move) }
+    end
+
+    green_bg = "\e[42m"
+    reset_bg = "\e[0m"
+    temp_pieces = moves.map do |move|
+      piece = get_piece(*move)
+      set_piece(*move, green_bg + piece.to_s + reset_bg)
+      set_piece(*move, "•") if piece.nil?
+      [piece, move]
+    end
+    print_board
+    temp_pieces.each do |piece, move|
+      set_piece(*move, piece)
+    end
   end
 
-  def in_range?(row, col)
-    row.between?(0, board.length - 1) && col.between?(0, board.length - 1)
+  def to_yaml
+    YAML.dump(self)
   end
 
-  # can be used to move
-  def empty_tile?(row, col)
-    @board[row][col].nil? if in_range?(row, col)
+  def self.from_yaml(string)
+    YAML.load(string)
+  end
+
+  protected
+
+  def handle_move(row, col, finish_row, finish_col, piece)
+    case piece.class
+    when Pawn
+      handle_en_passant(row, col, finish_row, finish_col, piece)
+      piece = handle_promotion(finish_row, finish_col, piece) || piece
+    when King
+      piece.first_move = false
+      handle_castling(row, col, finish_row, finish_col, piece)
+    when Rook
+      piece.first_move = false
+    end
+    set_piece(finish_row, finish_col, piece)
+    set_piece(row, col, nil)
+    remove_en_passant
+  end
+
+  def handle_castling(row, col, finish_row, finish_col, piece)
+    return unless (col - finish_col).abs == 2
+
+    if finish_col > col
+      set_piece(row, col + 1, get_piece(row, 7))
+      set_piece(row, 7, nil)
+    else
+      set_piece(row, col - 1, get_piece(row, 0))
+      set_piece(row, 0, nil)
+    end
+  end
+
+  def find_king(color)
+    board.each_with_index do |arr, row|
+      arr.each_with_index do |piece, col|
+        return [row, col] if piece.instance_of?(King) && piece.color == color
+      end
+    end
+    nil
+  end
+
+  def setup_pieces
+    pieces = %i[rook knight bishop queen king bishop knight rook]
+    board.each_index do |col|
+      @board[0][col] = create_piece(:black, pieces[col])
+      @board[1][col] = create_piece(:black, :pawn)
+      @board[7][col] = create_piece(:white, pieces[col])
+      @board[6][col] = create_piece(:white, :pawn)
+    end
+  end
+
+  def create_piece(color, name)
+    case name
+    when :pawn then Pawn.new(color)
+    when :rook then Rook.new(color)
+    when :knight then Knight.new(color)
+    when :bishop then Bishop.new(color)
+    when :queen then Queen.new(color)
+    when :king then  King.new(color)
+    end
+  end
+
+  def decode_move(move)
+    # move= "a2" a-h=row 1-8=col
+    col = move[0].downcase.ord - 97
+    row = move[1].to_i - 1
+    row = 7 - row
+    [row, col]
+  end
+
+  def encode_move(row, col)
+    col = (col + 97).chr
+    row = 8 - row
+    "#{col}#{row}"
   end
 
   def remove_en_passant
@@ -220,30 +275,6 @@ class Board
     create_piece(piece.color, promotion)
   end
 
-  def get_piece(row, col)
-    @board[row][col]
-  end
-
-  # can be used to capture
-  def enemy_tile?(color, row, col)
-    @board[row][col].color != color if in_range?(row, col) && !empty_tile?(row, col)
-  end
-
-  # can be used to capture and move
-  def allowed_tile?(color, row, col)
-    true if empty_tile?(row, col) || enemy_tile?(color, row, col)
-  end
-
-  def to_yaml
-    YAML.dump(self)
-  end
-
-  def self.from_yaml(string)
-    YAML.load(string)
-  end
-
-  private
-
   def print_square(row, col)
     piece = @board[row][col] || " "
     print "│ #{piece} "
@@ -268,58 +299,3 @@ class Board
     puts "  └───#{'┴───' * 7}┘"
   end
 end
-
-def test_en_passant
-  board = Board.new
-  board.clear_board
-  board.set_piece(6, 0, Pawn.new(:white))
-  board.set_piece(4, 1, Pawn.new(:black))
-  board.print_board
-  board.move_piece("a2", "a4")
-  board.print_board
-  board.move_piece("b4", "a3")
-  board.print_board
-end
-
-def test_promotion
-  board = Board.new
-  board.clear_board
-  board.set_piece(1, 0, Pawn.new(:white))
-  board.print_board
-  board.move_piece("a7", "a8")
-  board.print_board
-end
-
-def test_possible_moves
-  board = Board.new
-  board.clear_board
-  board.set_piece(4, 4, Queen.new(:white))
-  board.set_piece(3, 3, Rook.new(:black))
-  board.print_possible_moves("e4")
-end
-
-# test_possible_moves
-def king_in_check_test
-  board = Board.new
-  board.clear_board
-  board.set_piece(4, 4, King.new(:white))
-  board.set_piece(3, 3, Rook.new(:black))
-  board.print_board
-  p board.king_in_check?(:white)
-  board.move_piece("d5", "e5")
-  board.print_board
-  p board.king_in_check?(:white)
-end
-
-# king_in_check_test
-def checkmate_test
-  board = Board.new
-  board.clear_board
-  board.set_piece(4, 4, King.new(:white))
-  board.set_piece(3, 3, Rook.new(:black))
-  board.set_piece(3, 5, Rook.new(:black))
-  board.set_piece(4, 3, Rook.new(:black))
-  board.print_board
-  p board.checkmate_moves(:white)
-end
-checkmate_test

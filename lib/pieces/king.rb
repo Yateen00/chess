@@ -1,8 +1,11 @@
 require_relative "piece"
 class King < Piece
+  attr_accessor :first_move
+
   def initialize(color)
     symbol = color == :white ? :♔ : :♚
     super(color, symbol)
+    @first_move = true
   end
 
   def valid_moves(board, row, col)
@@ -23,14 +26,50 @@ class King < Piece
                                                        !board.allowed_tile?(color, offsetted_row, offsetted_col)
       end
     end
-    remove_blocked_moves(moves, board, row, col)
+
+    moves = add_castling_moves(moves, board, row, col) unless board.check?(color, row, col)
+    moves = remove_blocked_moves(moves, board, row, col)
+    verify_castling(moves, board, row, col)
+  end
+
+  def add_castling_moves(moves, board, row, col)
+    moves = castling_kingside(moves, board, row, col)
+    castling_queenside(moves, board, row, col)
+  end
+
+  def castling_kingside(moves, board, row, col)
+    return moves unless first_move
+
+    piece = board.get_piece(row, 7)
+    return moves unless piece.instance_of?(Rook) && piece.first_move
+
+    moves << [row, col + 2] if board.empty_tile?(row, col + 1) &&
+                               board.empty_tile?(row, col + 2)
+    moves
+  end
+
+  def castling_queenside(moves, board, row, col)
+    return moves unless first_move
+
+    piece = board.get_piece(row, 0)
+    return moves unless piece.instance_of?(Rook) && piece.first_move
+
+    moves << [row, col - 2] if board.empty_tile?(row, col - 1) &&
+                               board.empty_tile?(row, col - 2) &&
+                               board.empty_tile?(row, col - 3)
+    moves
+  end
+
+  def verify_castling(moves, board, row, col)
+    moves.delete([row, col + 2]) unless moves.include?([row, col + 1])
+    moves.delete([row, col - 2]) unless moves.include?([row, col - 1])
+    moves
   end
 
   # internal needs to be at start
   def remove_blocked_moves(moves, board, my_row, my_col)
     board.set_piece(my_row, my_col, nil)
     moves = remove_internal_blocked_moves(moves, board)
-
     moves = remove_externally_blocked_moves(moves, board)
     board.set_piece(my_row, my_col, self)
     moves

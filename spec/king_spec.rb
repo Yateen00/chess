@@ -49,5 +49,25 @@ describe King do
       board.set_piece(2, 2, King.new(:white))
       expect(piece.valid_moves(board, 3, 3)).to_not include([2, 2])
     end
+    context "when castling is possible" do
+      it "returns both castling moves" do
+        board.set_piece(0, 7, Rook.new(:white))
+        board.set_piece(0, 0, Rook.new(:white))
+        board.set_piece(0, 4, piece)
+
+        expect(piece.valid_moves(board, 0, 4)).to include([0, 6], [0, 2])
+      end
+      it "doesnt return castling moves when rook or king has moved" do
+        piece2 = Rook.new(:white)
+        board.set_piece(0, 7, piece2)
+        board.set_piece(0, 4, piece)
+        piece2.first_move = false
+        expect(piece.valid_moves(board, 0, 4)).to_not include([0, 2])
+        piece2.first_move = true
+        piece.first_move = false
+        expect(piece.valid_moves(board, 0, 4)).to_not include([0, 2])
+      end
+    end
   end
 end
+# [2, 2], [2, 3], [2, 4], [3, 2], [3, 4], [4, 2], [4, 3], [4, 4]
