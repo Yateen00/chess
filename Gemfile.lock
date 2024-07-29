@@ -2,6 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     diff-lcs (1.5.1)
+    fileutils (1.7.2)
     rspec (3.13.0)
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
@@ -15,13 +16,16 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-support (3.13.1)
+    yaml (0.3.0)
 
 PLATFORMS
   ruby
   x86_64-linux
 
 DEPENDENCIES
+  fileutils (~> 1.7)
   rspec (~> 3.13)
+  yaml (~> 0.3.0)
 
 BUNDLED WITH
    2.5.16

@@ -94,4 +94,14 @@ describe Board do
       expect(board.stalemate?(:white)).to be true
     end
   end
+  describe "#random_move" do
+    it "returns a random move" do
+      board.set_piece(4, 4, King.new(:white))
+      board.set_piece(3, 3, Rook.new(:black))
+      board.set_piece(3, 5, Rook.new(:black))
+      board.set_piece(4, 3, Rook.new(:black))
+      board.print_board
+      expect(board.random_move(:white)).to eq(%w[e4 e3])
+    end
+  end
 end

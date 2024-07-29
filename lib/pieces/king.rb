@@ -76,7 +76,9 @@ class King < Piece
     moves
   end
 
+  # check if king captures, will it still be check
   def remove_externally_blocked_moves(moves, board)
+    # replace internal pieces with king
     temp_pieces = moves.each_with_object([]) do |move, obj|
       piece = board.get_piece(*move)
       next if piece.nil?
@@ -86,9 +88,10 @@ class King < Piece
     end
     board.board.each_with_index do |subarr, row|
       subarr.each_with_index do |piece, col|
-        next if piece.nil? || piece.color == color || moves.empty?
+        break if moves.empty?
 
-        moves -= piece.valid_moves(board, row, col)
+        # next if piece.nil? || piece.color == color || moves.empty?
+        moves -= piece.valid_moves(board, row, col) if board.enemy_tile?(color, row, col)
       end
     end
     temp_pieces.each do |piece, move|
@@ -97,16 +100,19 @@ class King < Piece
     moves
   end
 
+  # repalce king with each piece to check if its still check if king captures
   def remove_internal_blocked_moves(moves, board)
     filtered_moves = moves.dup
     moves.each do |move|
       piece = board.get_piece(*move)
       next if piece.nil?
 
+      # remove tiles piece obstructes,
       filtered_moves -= piece.valid_moves(board, *move)
       board.set_piece(*move, nil)
       moves.each do |move2|
         piece2 = board.get_piece(*move2)
+        #then remove piece to see if king can move where the piece was
         filtered_moves -= piece2.valid_moves(board, *move2) unless piece2.nil? || piece2 == piece
       end
       board.set_piece(*move, piece)

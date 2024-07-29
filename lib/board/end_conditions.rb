@@ -24,7 +24,8 @@ module EndConditions
                                              get_piece(king_row, king_col).nil?
     board.each_with_index do |arr, row|
       arr.each_with_index do |piece, col|
-        next if piece.nil? || piece.color == color
+        next unless enemy_tile?(color, row, col)
+        # if piece.nil? || piece.color == color
 
         return true if piece.valid_moves(self, row, col).include?([king_row, king_col])
       end
@@ -37,7 +38,9 @@ module EndConditions
     piece_and_moves = Hash.new { |h, k| h[k] = [] } # {piece_position: [valid_moves]}
     board.each_with_index do |arr, row|
       arr.each_with_index do |piece, col|
-        next if piece.nil? || piece.color != color
+        next unless friendly_tile?(color, row, col)
+
+        # !piece.nil? && piece.color == color
 
         pos = encode_move(row, col)
         if piece.instance_of?(King)
