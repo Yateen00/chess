@@ -9,20 +9,22 @@ class Human < Player
       print_valid_pieces(board, moves)
     end
     start = start_move(board, moves)
+
     finish = finish_move(board, start, moves)
+
     [start, finish]
   end
 
   protected
 
   def start_move(board, moves)
-    puts "Enter the start position of the piece you want to move: "
+    puts "Enter the start position of the piece you want to move(eg: a2): "
     start = gets.chomp
-    until board.valid_starting_tile?(start, color)
+    until  board.valid_starting_tile?(start, color)
       puts "Invalid start position, please enter a valid start position: "
       start = gets.chomp
     end
-    board.print_possible_moves(start, moves[start])
+    board.print_possible_moves(start, moves&.dig(start))
     if board.piece_has_moves?(start, moves)
       puts "Do you want to choose another piece? (y/n)"
       start_move(board, moves) if gets.chomp.downcase == "y"
@@ -34,9 +36,11 @@ class Human < Player
   end
 
   def finish_move(board, start, moves)
-    puts "Enter the finish position of the piece you want to move: "
+    puts "Enter the finish position of the piece you want to move(eg:a3): "
+
     finish = gets.chomp
-    until board.move_piece(start, finish, moves[start])
+    until board.move_piece(start, finish, moves&.dig(start))
+
       puts "Invalid finish position, please enter a valid finish position: "
       finish = gets.chomp
     end

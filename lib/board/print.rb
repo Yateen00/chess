@@ -1,6 +1,6 @@
 module Print
   def print_board
-    print "    0   1   2   3   4   5   6   7\n"
+    # print "    0   1   2   3   4   5   6   7\n"
     print_top_border
     board.each_index do |row|
       print "#{8 - row} " # Row label

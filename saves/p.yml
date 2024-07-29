@@ -1,0 +1,160 @@
+--- !ruby/object:Chess
+board: !ruby/object:Board
+  board:
+  - - !ruby/object:Rook
+      color: :black
+      symbol: :♜
+      first_move: true
+    - !ruby/object:Knight
+      color: :black
+      symbol: :♞
+    - !ruby/object:Bishop
+      color: :black
+      symbol: :♝
+    - !ruby/object:Queen
+      color: :black
+      symbol: :♛
+    - !ruby/object:King
+      color: :black
+      symbol: :♚
+      first_move: true
+    - !ruby/object:Bishop
+      color: :black
+      symbol: :♝
+    - !ruby/object:Knight
+      color: :black
+      symbol: :♞
+    - !ruby/object:Rook
+      color: :black
+      symbol: :♜
+      first_move: true
+  - - !ruby/object:Pawn
+      color: :black
+      symbol: :♟
+      took_double_step: false
+    - !ruby/object:Pawn
+      color: :black
+      symbol: :♟
+      took_double_step: false
+    - !ruby/object:Pawn
+      color: :black
+      symbol: :♟
+      took_double_step: false
+    - !ruby/object:Pawn
+      color: :black
+      symbol: :♟
+      took_double_step: false
+    - !ruby/object:Pawn
+      color: :black
+      symbol: :♟
+      took_double_step: false
+    - !ruby/object:Pawn
+      color: :black
+      symbol: :♟
+      took_double_step: false
+    - !ruby/object:Pawn
+      color: :black
+      symbol: :♟
+      took_double_step: false
+    - !ruby/object:Pawn
+      color: :black
+      symbol: :♟
+      took_double_step: false
+  - - 
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+  - - 
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+  - - 
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+  - - 
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+  - - !ruby/object:Pawn
+      color: :white
+      symbol: :♙
+      took_double_step: false
+    - !ruby/object:Pawn
+      color: :white
+      symbol: :♙
+      took_double_step: false
+    - !ruby/object:Pawn
+      color: :white
+      symbol: :♙
+      took_double_step: false
+    - !ruby/object:Pawn
+      color: :white
+      symbol: :♙
+      took_double_step: false
+    - !ruby/object:Pawn
+      color: :white
+      symbol: :♙
+      took_double_step: false
+    - !ruby/object:Pawn
+      color: :white
+      symbol: :♙
+      took_double_step: false
+    - !ruby/object:Pawn
+      color: :white
+      symbol: :♙
+      took_double_step: false
+    - !ruby/object:Pawn
+      color: :white
+      symbol: :♙
+      took_double_step: false
+  - - !ruby/object:Rook
+      color: :white
+      symbol: :♖
+      first_move: true
+    - !ruby/object:Knight
+      color: :white
+      symbol: :♘
+    - !ruby/object:Bishop
+      color: :white
+      symbol: :♗
+    - !ruby/object:Queen
+      color: :white
+      symbol: :♕
+    - !ruby/object:King
+      color: :white
+      symbol: :♔
+      first_move: true
+    - !ruby/object:Bishop
+      color: :white
+      symbol: :♗
+    - !ruby/object:Knight
+      color: :white
+      symbol: :♘
+    - !ruby/object:Rook
+      color: :white
+      symbol: :♖
+      first_move: true
+player1: !ruby/object:Human
+  color: :white
+  name: yeet
+player2: !ruby/object:Computer
+  color: :black
+  name: Computer 2
+turn: :white

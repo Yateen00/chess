@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../lib/pieces/pawn"
-require_relative "..lib/board/board"
+require_relative "../lib/board/board"
 describe Pawn do
   let(:piece) { Pawn.new(:white) }
   let(:board) do

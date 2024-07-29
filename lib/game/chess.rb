@@ -5,9 +5,8 @@ require_relative "../players/human"
 require_relative "../players/computer"
 require_relative "commands"
 # to do:
-# repition check will be done in game
-# implement other commands too
-# implment check,stale,draw,mate
+# repition check
+# insufficient material
 
 class Chess
   attr_reader :board, :player1, :player2, :turn
@@ -30,13 +29,13 @@ class Chess
     @board = Board.new
     @player1 = create_player(1)
     choose_side(player1)
+    @turn = :white
 
     @player2 = create_player(2)
     choose_side(player2, player1.color)
     puts "#{player1.name} chose #{player1.color}"
     puts "#{player2.name} chose #{player2.color}"
     puts "The game is on!"
-    @turn = :white
   end
 
   def create_player(player_number)
@@ -68,8 +67,8 @@ class Chess
   end
 
   def play
-    previous_move = []
     loop do
+      board.print_board
       puts "Enter your command: exit,restart,save,load or anything else to continue"
       command = gets.chomp
       case command
@@ -83,9 +82,8 @@ class Chess
       when "load"
         load_game
       else
-        board.print_board
         move = play_turn
-        previous_move << move unless move.nil?
+
         over = game_over?
         again = play_again? if over
         return nil if over && !again
@@ -116,12 +114,17 @@ class Chess
   def game_over?
     loser = current_turn_player
     winner = loser == player1 ? player2 : player1
-    if board.mate?(color)
-      puts "Congratulations! #{winner.name} that is #{winner.color} wins!"
-      return true
-    elsif board.stalemate?(color)
+    if board.stalemate?(loser.color)
+      board.print_board
+      puts("There are no valid moves for #{turn}")
       puts "It's a tie!"
       return true
+    elsif board.mate?(loser.color)
+      board.print_board
+      puts("There are no valid moves for #{turn}")
+      puts "Congratulations! #{winner.name} that is #{winner.color} wins!"
+      return true
+
     end
     false
   end

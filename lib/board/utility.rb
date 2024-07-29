@@ -11,15 +11,15 @@ module Utility
     return random_move_from_given(color, moves) unless moves.nil?
 
     pieces = all_friendly_pieces(color)
-    selected_move = nil
+    selected_move = []
     len = pieces.length
     pieces.each do |row, col|
       moves = get_piece(row, col).valid_moves(self, row, col)
       next if moves.empty?
 
       random_match = rand(0..len - 1).zero?
-      selected_move = [encode_move(row, col), encode_move(*moves.sample)] if random_match || selected_move.nil?
-      return selected_move if random_match && !selected_move.nil?
+      selected_move = [encode_move(row, col), encode_move(*moves.sample)] if random_match || selected_move.empty?
+      return selected_move if random_match && !selected_move.empty?
     end
     selected_move
   end
@@ -36,6 +36,7 @@ module Utility
 
   def random_move_from_given(color, moves)
     # { "e4" => ["e3"] }
+    return [] if moves.empty?
 
     key = moves.keys.sample
 
@@ -45,10 +46,10 @@ module Utility
   end
 
   def piece_has_moves?(move, moves = nil)
-    return moves[move].empty? && moves.delete(move) unless moves.nil?
+    return moves.keys.include?(move) unless moves.nil?
 
     pos = decode_move(move)
-    get_piece(pos).valid_moves(self, *pos).empty?
+    !get_piece(*pos).valid_moves(self, *pos).empty?
   end
 
   def all_friendly_pieces(color)
@@ -75,7 +76,7 @@ module Utility
   end
 
   def valid_starting_tile?(pos, color)
-    !board.enemy_tile?(color, *decode_move(pos))
+    friendly_tile?(color, *decode_move(pos))
   end
 
   def friendly_tile?(color, row, col)
@@ -106,6 +107,7 @@ module Utility
 
   def decode_move(move)
     # move= "a2" a-h=row 1-8=col
+    move.reverse! unless move[0].to_i.zero?
     col = move[0].downcase.ord - 97
     row = move[1].to_i - 1
     row = 7 - row

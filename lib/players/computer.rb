@@ -6,7 +6,6 @@ class Computer < Player
     return [] if !moves.nil? && moves.empty?
 
     move = board.random_move(color, moves)
-    start, finish = *move
 
     board.move_piece(*move, moves)
     move

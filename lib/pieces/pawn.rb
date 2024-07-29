@@ -13,7 +13,8 @@ class Pawn < Piece
   end
 
   def en_passant?(board, row, col, enemy_row, enemy_col)
-    board.get_piece(row, enemy_col)&.took_double_step &&
+    piece = board.get_piece(row, enemy_col)
+    piece.is_a?(Pawn) && piece.took_double_step &&
       board.enemy_tile?(color, row, enemy_col) &&
       enemy_row == row
   end

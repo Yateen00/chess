@@ -21,7 +21,6 @@ class Board
 
     return false unless moves.include?([finish_row, finish_col])
 
-
     handle_move(start_row, start_col, finish_row, finish_col, piece)
     @previous_move = [[start_row, start_col], [finish_row, finish_col]]
     true
