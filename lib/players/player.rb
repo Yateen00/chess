@@ -7,7 +7,7 @@ class Player
   end
 
   # moves: {"start":["end"]}, default value []
-  def play_turn(board)
+  def make_move(board)
     raise NotImplementedError
   end
 

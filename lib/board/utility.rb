@@ -24,12 +24,23 @@ module Utility
     selected_move
   end
 
+  def decode_moves(moves)
+    result = []
+    moves.each_value do |final_arr|
+      final_arr.each do |move|
+        result << decode_move(move)
+      end
+    end
+    result
+  end
+
   def random_move_from_given(color, moves)
     # { "e4" => ["e3"] }
-    return [] if mate?(color, moves)
 
     key = moves.keys.sample
+
     value = moves[key].sample
+
     [key, value]
   end
 
@@ -42,7 +53,7 @@ module Utility
 
   def all_friendly_pieces(color)
     board.each_with_index.with_object([]) do |(arr, row), obj|
-      arr.each_with_index do |_piece, col|
+      arr.each_index do |col|
         obj << [row, col] if friendly_tile?(color, row, col)
         # !piece.nil? && piece.color == color
       end
@@ -85,7 +96,7 @@ module Utility
   end
 
   def reset_board
-    empty_board
+    clear_board
     setup_pieces
   end
 

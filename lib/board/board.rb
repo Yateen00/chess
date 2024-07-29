@@ -17,13 +17,10 @@ class Board
     piece = get_piece(start_row, start_col)
     return false if piece.nil?
 
-    moves = if moves.nil?
-              piece.valid_moves(self, start_row, start_col)
-            else
-              moves.map { |move| decode_move(move) }
-            end
+    moves = moves.nil? ? piece.valid_moves(self, start_row, start_col) : decode_moves(moves)
 
     return false unless moves.include?([finish_row, finish_col])
+
 
     handle_move(start_row, start_col, finish_row, finish_col, piece)
     @previous_move = [[start_row, start_col], [finish_row, finish_col]]

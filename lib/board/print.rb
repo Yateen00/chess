@@ -20,7 +20,7 @@ module Print
 
       moves = piece.valid_moves(self, row, col)
     else
-      moves = moves.map { |move| decode_move(move) }
+      moves = decode_moves(moves)
     end
 
     green_bg = "\e[42m"

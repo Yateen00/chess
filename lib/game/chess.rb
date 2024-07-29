@@ -3,54 +3,55 @@ require "yaml"
 require "fileutils"
 require_relative "../players/human"
 require_relative "../players/computer"
+require_relative "commands"
 # to do:
 # repition check will be done in game
 # implement other commands too
 # implment check,stale,draw,mate
+
 class Chess
   attr_reader :board, :player1, :player2, :turn
 
   def initialize
-    intro_message
-    puts "Do you want to load a saved game? (y/n)"
-    load_game if gets.chomp.downcase == "y"
-    create_new_game if player1.nil? || player2.nil?
-  end
-
-  def intro_message
     puts "Welcome to Chess!"
-    puts "Enter 'exit' to quit the game"
-    puts "Enter 'restart' to restart the game"
-    puts "Enter 'save' to save the game"
-    puts "Enter 'load' to load the game"
+    unless loaded_files.empty?
+      puts "Do you want to load a saved game? (y/n)"
+      confirmation = gets.chomp.downcase
+    end
+    if confirmation == "y"
+      load_game
+    else
+      create_new_game
+    end
   end
 
+  # to change: chose at end
   def create_new_game
     @board = Board.new
     @player1 = create_player(1)
     choose_side(player1)
-    puts "#{player1.name} chose #{player1.symbol}"
+
     @player2 = create_player(2)
     choose_side(player2, player1.color)
-    puts "#{player2.name} chose #{player2.symbol}"
+    puts "#{player1.name} chose #{player1.color}"
+    puts "#{player2.name} chose #{player2.color}"
     puts "The game is on!"
     @turn = :white
-    @mated = false
   end
 
   def create_player(player_number)
     loop do
-      puts "Is player #{player_number} a human or computer? (h/c)"
+      puts "\nIs player #{player_number} a human or computer? (h/c)"
       player_type = gets.chomp.downcase
       case player_type
       when "h"
         puts "Player #{player_number}, what is your name?"
         name = gets.chomp
-        puts "\n"
+
         return Human.new(nil, name)
 
       when "c"
-        puts "\n"
+
         return Computer.new(nil, "Computer #{player_number}")
       else
         puts "Invalid input. Please enter 'h' for human or 'c' for computer."
@@ -86,7 +87,7 @@ class Chess
         move = play_turn
         previous_move << move unless move.nil?
         over = game_over?
-        again = play_again?
+        again = play_again? if over
         return nil if over && !again
 
         restart if over && again
@@ -99,9 +100,9 @@ class Chess
   def play_turn
     puts "#{turn.capitalize}'s turn"
     move = if turn == player1.color
-             player1.make_move
+             player1.make_move(board)
            else
-             player2.make_move
+             player2.make_move(board)
            end
     flip_turn unless move.empty?
     move

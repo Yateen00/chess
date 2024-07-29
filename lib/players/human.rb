@@ -1,4 +1,20 @@
-class Human
+require_relative "player"
+class Human < Player
+  def make_move(board)
+    moves = nil
+    if board.check?(color)
+      moves = board.check_moves(color)
+      return [] if moves.nil?
+
+      print_valid_pieces(board, moves)
+    end
+    start = start_move(board, moves)
+    finish = finish_move(board, start, moves)
+    [start, finish]
+  end
+
+  protected
+
   def start_move(board, moves)
     puts "Enter the start position of the piece you want to move: "
     start = gets.chomp
@@ -25,19 +41,6 @@ class Human
       finish = gets.chomp
     end
     finish
-  end
-
-  def play_turn(board)
-    moves = nil
-    if board.check?(color)
-      moves = board.check_moves(color)
-      return [] if board.mate?(color, moves)
-
-      print_valid_pieces(board, moves)
-    end
-    start = start_move(board, moves)
-    finish = finish_move(board, start, moves)
-    [start, finish]
   end
 
   def print_valid_pieces(board, moves)

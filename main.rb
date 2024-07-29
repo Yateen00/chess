@@ -3,4 +3,5 @@ def main
   game = Chess.new
   game.play
 end
+
 main

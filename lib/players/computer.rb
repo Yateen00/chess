@@ -1,8 +1,12 @@
-class Computer
-  def play_turn(board)
+require_relative "player"
+require_relative "../board/board"
+class Computer < Player
+  def make_move(board)
     moves = board.check_moves(color) if board.check?(color)
-    move = random_move(board, moves)
-    return [] if move.empty?
+    return [] if !moves.nil? && moves.empty?
+
+    move = board.random_move(color, moves)
+    start, finish = *move
 
     board.move_piece(*move, moves)
     move
