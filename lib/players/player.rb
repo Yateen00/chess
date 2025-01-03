@@ -12,6 +12,7 @@ class Player
   end
 
   def assign_color(color = nil, other_color = nil)
+    # nil, not empty string
     @color = if color.nil? && other_color.nil?
                %i[black white].sample
              elsif color.nil?

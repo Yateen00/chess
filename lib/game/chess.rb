@@ -4,9 +4,20 @@ require "fileutils"
 require_relative "../players/human"
 require_relative "../players/computer"
 require_relative "commands"
-# to do:
+# to do if possible:
 # repition check
 # insufficient material
+# flip board
+# to take input and xommands together
+# make it show it prints the board on top of previous one
+# like:
+# board
+# enter prompt
+# your move
+# any errors etc, which get removed after rerror is resolved
+#
+# also error: if a friendly piece is blocking an attack to king, it is still
+# allowed to move, when it shouldnt. fix that somehow
 
 class Chess
   attr_reader :board, :player1, :player2, :turn
@@ -62,6 +73,7 @@ class Chess
     if player.is_a?(Human) && other_color.nil?
       puts "Choose your side: type 'white' or 'black' or anything else for random"
       color = gets.chomp
+      color = nil if color != "white" && color != "black"
     end
     player.assign_color(color, other_color)
   end
@@ -82,7 +94,7 @@ class Chess
       when "load"
         load_game
       else
-        move = play_turn
+        play_turn
 
         over = game_over?
         again = play_again? if over
